@@ -1,0 +1,15 @@
+{
+  "name": "zcode-token-meter-mac",
+  "description": "TokenMeter for ZCode (macOS) — floating tok/s + cache hit widget",
+  "plugins": [
+    {
+      "name": "zcode-token-meter-mac",
+      "source": "./zcode-token-meter-mac",
+      "version": "0.1.1",
+      "description": "Floating always-on-top macOS widget showing live ZCode token speed (tok/s or tok/min) and prompt-cache hit rate, read locally from ZCode's SQLite DB. No network, no telemetry.",
+      "displayName": "TokenMeter (macOS)",
+      "category": "developer-tools",
+      "tags": ["macos", "token", "stats", "widget", "monitor"]
+    }
+  ]
+}

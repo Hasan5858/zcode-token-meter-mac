@@ -1,0 +1,30 @@
+{
+  "description": "TokenMeter hooks: track which chat the user is interacting with",
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|clear|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 -c \"import json,sys,os,pathlib; d=json.load(sys.stdin); p=pathlib.Path.home()/'.zcode'/'token-meter'; p.mkdir(exist_ok=True); (p/'current-session').write_text(d.get('session_id',''))\" &",
+            "async": true,
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 -c \"import json,sys,os,pathlib; d=json.load(sys.stdin); p=pathlib.Path.home()/'.zcode'/'token-meter'; p.mkdir(exist_ok=True); (p/'current-session').write_text(d.get('session_id',''))\" &",
+            "async": true,
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}
