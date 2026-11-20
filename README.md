@@ -6,6 +6,8 @@ A floating, always-on-top macOS widget for [ZCode](https://zcode.z.ai) that show
 ● 62.2 tok/s    cache 87%
 ```
 
+![TokenMeter widget in ZCode's input bar](zcode-token-meter-mac/docs/screenshot.png)
+
 Native Swift/AppKit port of [alixntuyt-eng/zcode-token-meter](https://github.com/alixntuyt-eng/zcode-token-meter) (which is Windows/WPF-only).
 
 ## Install (one minute)
