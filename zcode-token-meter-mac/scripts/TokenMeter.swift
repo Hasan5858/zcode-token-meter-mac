@@ -117,10 +117,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func fetchRows() -> [[String]] {
         guard let db else { return [] }
         sqlite3_exec(db, "PRAGMA wal_checkpoint(PASSIVE);", nil, nil, nil)
+        // model_usage = per-REQUEST rows: a new completed row lands every few
+        // seconds while a turn runs, so tok/s updates live. (turn_usage only
+        // writes at turn end — using it froze the display mid-turn.)
         let sql = """
         SELECT session_id, status, first_token_at, completed_at, output_tokens,
-               input_tokens, cache_creation_input_tokens, cache_read_input_tokens
-        FROM turn_usage ORDER BY started_at DESC LIMIT 200
+               input_tokens, cache_read_input_tokens
+        FROM model_usage ORDER BY started_at DESC LIMIT 200
         """
         var stmt: OpaquePointer?
         guard sqlite3_prepare_v2(db, sql, -1, &stmt, nil) == SQLITE_OK else { return [] }
@@ -160,28 +163,26 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         let sessionRows = rows
 
-        let now = Int64(Date().timeIntervalSince1970 * 1000)
-        let running = sessionRows.first { $0[1] == "running" }
+        let running = sessionRows.contains { $0[1] == "running" }
+        // Per-request speed: each model request completes every few seconds
+        // during a turn, so this value refreshes continuously.
         var speed: Double = 0
-
-        if let run = running, let start = Int64(run[2]), now > start {
-            speed = (Double(run[4]) ?? 0) / max(1.0, Double(now - start) / 1000.0)
-        } else if let done = sessionRows.first(where: { $0[1] == "completed" }),
-                  let s = Int64(done[2]), let c = Int64(done[3]), c > s {
+        if let done = sessionRows.first(where: { $0[1] == "completed" }),
+           let s = Int64(done[2]), let c = Int64(done[3]), c > s {
             speed = (Double(done[4]) ?? 0) / max(1.0, Double(c - s) / 1000.0)
         }
 
         let value = usePerMinute ? speed * 60 : speed
         view.speedField.stringValue = String(format: "%.1f %@", value, usePerMinute ? "tok/min" : "tok/s")
 
-        // input_tokens already includes cached tokens, so hit = read/input.
-        let read = sessionRows.reduce(Int64(0)) { $0 + (Int64($1[7]) ?? 0) }
+        // model_usage input_tokens already includes cached tokens → hit = read/input.
+        let read = sessionRows.reduce(Int64(0)) { $0 + (Int64($1[6]) ?? 0) }
         let totalInput = sessionRows.reduce(Int64(0)) { $0 + (Int64($1[5]) ?? 0) }
         view.cacheField.stringValue = totalInput > 0
             ? String(format: "cache %.0f%%", Double(read) / Double(totalInput) * 100)
             : "cache —"
 
-        view.statusDot.textColor = running != nil ? .systemGreen : .systemGray
+        view.statusDot.textColor = running ? .systemGreen : .systemGray
     }
 
     func querySessions() -> [(String, String)] {
