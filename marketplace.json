@@ -5,11 +5,25 @@
     {
       "name": "zcode-token-meter-mac",
       "source": "./zcode-token-meter-mac",
-      "version": "0.1.5",
+      "version": "0.1.6",
       "description": "Floating always-on-top macOS widget showing live ZCode token speed (tok/s or tok/min) and prompt-cache hit rate, read locally from ZCode's SQLite DB. No network, no telemetry.",
       "displayName": "TokenMeter (macOS)",
       "category": "developer-tools",
       "tags": [
+        "macos",
+        "token",
+        "stats",
+        "widget",
+        "monitor"
+      ],
+      "description_i18n": {
+        "en": "Floating always-on-top macOS widget showing live ZCode token speed (tok/s or tok/min) and prompt-cache hit rate, read locally from ZCode's SQLite DB. No network, no telemetry.",
+        "zh-CN": "悬浮置顶的 macOS 小组件，实时显示 ZCode 的 Token 生成速度（tok/s 或 tok/min）与提示词缓存命中率，数据来自本地 SQLite 数据库。无网络请求、无遥测。"
+      },
+      "author": {
+        "name": "Hasan Sarker"
+      },
+      "keywords": [
         "macos",
         "token",
         "stats",

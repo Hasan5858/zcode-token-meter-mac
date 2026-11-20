@@ -1,5 +1,7 @@
 # TokenMeter for ZCode (macOS)
 
+[中文文档](./README_CN.md)
+
 A floating, always-on-top macOS widget for [ZCode](https://zcode.z.ai) that shows live token-generation speed and prompt-cache hit rate while the agent works.
 
 ```
@@ -108,6 +110,25 @@ ZCode gives no signal when you switch chats, so the widget cannot know which cha
 **An update doesn't show up in "Check for updates"**
 
 The check runs against the locally cached marketplace manifest. Open **gear icon → Marketplace sources → this marketplace → Refresh**, then check again.
+
+## What the plugin provides
+
+| Component | Name | Purpose |
+| --- | --- | --- |
+| Hook | `SessionStart` | Auto-launches the widget in the background (detached, idempotent) and records the active session id |
+| Hook | `UserPromptSubmit` | Records the session the user just messaged in, so the widget follows the right chat |
+| Command | `/tokenmeter` | Start / stop / status of the widget from the composer |
+
+The widget itself is a small native macOS app (Swift/AppKit) compiled on the user's machine at first launch by `scripts/build.sh` (via `swiftc`, so it builds natively for Apple Silicon and Intel).
+
+## Security & side effects
+
+- **Network access: none.** No telemetry, no analytics, no outbound requests of any kind.
+- **Reads** `~/.zcode/cli/db/db.sqlite` (ZCode's local database, `model_usage` table) once per second to compute speed and cache-hit rate.
+- **Hooks execute** two short `python3 -c` one-liners (write a session id to `~/.zcode/token-meter/current-session`) and one `/bin/bash` call to `scripts/launch.sh`.
+- **`scripts/launch.sh`** runs `bash scripts/build.sh` (invokes `swiftc`) on first launch only, then spawns the compiled `token-meter` binary in a detached session. On build failure it writes `~/.zcode/token-meter/build-error.log` and posts a local macOS notification (`osascript display notification`).
+- **Writes** only inside `~/.zcode/token-meter/` (session id file, build-error log) and the compiled binary next to its source.
+- **No credentials, no customer data, no machine-specific paths, no prebuilt binaries** are committed; the binary is built locally and git-ignored.
 
 ## Known limitations
 
