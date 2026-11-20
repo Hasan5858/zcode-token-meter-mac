@@ -14,7 +14,7 @@ This repository is a ZCode plugin marketplace — install straight from the app:
 
 1. Open **ZCode → Settings → Plugins**
 2. Click **Create → Add marketplace**
-3. Paste this repository: `your-github-username/zcode-token-meter-mac`
+3. Paste this repository: `Hasan5858/zcode-token-meter-mac`
 4. Under **Personal → zcode-token-meter-mac**, click **Install** on **TokenMeter (macOS)**
 5. Restart ZCode — the widget starts automatically with every session
 

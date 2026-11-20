@@ -30,8 +30,8 @@ Inspired by [alixntuyt-eng/zcode-token-meter](https://github.com/alixntuyt-eng/z
 ### Option A — build & run manually
 
 ```bash
-git clone <this-repo>
-cd <this-repo>/zcode-token-meter-mac/scripts
+git clone https://github.com/Hasan5858/zcode-token-meter-mac.git
+cd zcode-token-meter-mac/scripts
 chmod +x build.sh launch.sh stop.sh
 ./launch.sh
 ```
