@@ -32,14 +32,13 @@ Inspired by [alixntuyt-eng/zcode-token-meter](https://github.com/alixntuyt-eng/z
 ```bash
 git clone https://github.com/Hasan5858/zcode-token-meter-mac.git
 cd zcode-token-meter-mac/scripts
-chmod +x build.sh launch.sh stop.sh
-./launch.sh
+bash launch.sh
 ```
 
 The first launch compiles the widget with `swiftc` and starts it. Stop it any time with:
 
 ```bash
-./stop.sh
+bash stop.sh
 ```
 
 ### Option B — as a ZCode plugin (auto-start with every ZCode session)
