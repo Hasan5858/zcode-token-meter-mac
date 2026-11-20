@@ -8,6 +8,8 @@
 ● 62.2 tok/s    cache 87%
 ```
 
+![ZCode 输入栏中的小组件](docs/screenshot.png)
+
 灵感来自 [alixntuyt-eng/zcode-token-meter](https://github.com/alixntuyt-eng/zcode-token-meter)（Windows/WPF 版）——本插件是面向 macOS 的原生 Swift/AppKit 实现。
 
 ## 功能特性

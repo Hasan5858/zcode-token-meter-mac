@@ -1,0 +1,2 @@
+Save the widget screenshot as submission/screenshot.png before creating the PR
+(attach it in the GitHub PR UI if you prefer).

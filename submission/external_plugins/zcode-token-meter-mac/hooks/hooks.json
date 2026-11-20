@@ -1,0 +1,35 @@
+{
+  "description": "TokenMeter hooks: auto-launch the widget and track the active chat",
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 -c \"import subprocess; subprocess.Popen(['/bin/bash', '${CLAUDE_PLUGIN_ROOT}/scripts/launch.sh'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True)\"",
+            "async": true,
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "python3 -c \"import json,sys,os,pathlib; d=json.load(sys.stdin); p=pathlib.Path.home()/'.zcode'/'token-meter'; p.mkdir(exist_ok=True); (p/'current-session').write_text(d.get('session_id',''))\" &",
+            "async": true,
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 -c \"import json,sys,os,pathlib; d=json.load(sys.stdin); p=pathlib.Path.home()/'.zcode'/'token-meter'; p.mkdir(exist_ok=True); (p/'current-session').write_text(d.get('session_id',''))\" &",
+            "async": true,
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}
