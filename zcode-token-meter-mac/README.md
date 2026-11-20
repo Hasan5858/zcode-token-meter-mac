@@ -91,6 +91,24 @@ ZCode gives no signal when you switch chats, so the widget cannot know which cha
 1. **Session picker** (built in) — right-click the widget and pin any recent chat
 2. **Prompt-submit hook** — add a `UserPromptSubmit` hook that writes the current `session_id` to `~/.zcode/token-meter/current-session`; Auto mode reads it first. See the hook above for the exact format (event: `UserPromptSubmit`, a short `python3 -c` script parsing stdin JSON).
 
+## Troubleshooting
+
+**The widget never appears after install**
+
+1. A first-launch build takes 30–60s — wait a minute after restarting ZCode.
+2. If a build fails you get a **macOS notification** and a log is written to `~/.zcode/token-meter/build-error.log`. The most common cause is missing Xcode Command Line Tools — open Terminal and run:
+
+   ```bash
+   xcode-select --install
+   ```
+
+   click **Install**, wait for it to finish, then restart ZCode. The next session retries the build automatically.
+3. Still nothing? Check the log (`cat ~/.zcode/token-meter/build-error.log`) and [open an issue](https://github.com/Hasan5858/zcode-token-meter-mac/issues) with its contents.
+
+**An update doesn't show up in "Check for updates"**
+
+The check runs against the locally cached marketplace manifest. Open **gear icon → Marketplace sources → this marketplace → Refresh**, then check again.
+
 ## Known limitations
 
 - Focused-tab detection is not possible: ZCode's Electron accessibility tree is disabled, and the DB never records which chat is open
