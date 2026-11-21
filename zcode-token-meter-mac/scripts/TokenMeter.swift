@@ -6,6 +6,8 @@
 import AppKit
 import SQLite3
 
+let transient = unsafeBitCast(-1, to: sqlite3_destructor_type.self)
+
 final class MeterView: NSView {
     let statusDot  = NSTextField(labelWithString: "●")
     let speedField = NSTextField(labelWithString: "— tok/s")
@@ -114,7 +116,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         db = handle
     }
 
-    func fetchRows() -> [[String]] {
+    func mostRecentSessionId() -> String {
+        guard let db else { return "" }
+        sqlite3_exec(db, "PRAGMA wal_checkpoint(PASSIVE);", nil, nil, nil)
+        var stmt: OpaquePointer?
+        let sql = "SELECT session_id FROM model_usage ORDER BY started_at DESC LIMIT 1"
+        guard sqlite3_prepare_v2(db, sql, -1, &stmt, nil) == SQLITE_OK else { return "" }
+        defer { sqlite3_finalize(stmt) }
+        guard sqlite3_step(stmt) == SQLITE_ROW, let c = sqlite3_column_text(stmt, 0) else { return "" }
+        return String(cString: c)
+    }
+
+    func fetchRows(sessionId: String) -> [[String]] {
         guard let db else { return [] }
         sqlite3_exec(db, "PRAGMA wal_checkpoint(PASSIVE);", nil, nil, nil)
         // model_usage = per-REQUEST rows: a new completed row lands every few
@@ -123,11 +136,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let sql = """
         SELECT session_id, status, first_token_at, completed_at, output_tokens,
                input_tokens, cache_read_input_tokens
-        FROM model_usage ORDER BY started_at DESC LIMIT 200
+        FROM model_usage WHERE session_id = ? ORDER BY started_at DESC LIMIT 200
         """
         var stmt: OpaquePointer?
         guard sqlite3_prepare_v2(db, sql, -1, &stmt, nil) == SQLITE_OK else { return [] }
         defer { sqlite3_finalize(stmt) }
+        sqlite3_bind_text(stmt, 1, sessionId, -1, transient)
         var rows: [[String]] = []
         while sqlite3_step(stmt) == SQLITE_ROW {
             var row: [String] = []
@@ -141,19 +155,23 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func refresh() {
-        let allRows = fetchRows()
-
         // Resolve which chat to show: picker lock > hook file > most recent.
+        // Then fetch THAT session's rows directly — a global recent-rows
+        // window can miss an older session entirely and show a false
+        // "no data yet".
         let hookFile = NSHomeDirectory() + "/.zcode/token-meter/current-session"
-        var activeSession = allRows.first.map { $0[0] } ?? ""
+        var activeSession = ""
         if let locked = lockedSession {
             activeSession = locked
         } else if let sid = try? String(contentsOfFile: hookFile, encoding: .utf8) {
             let trimmed = sid.trimmingCharacters(in: .whitespacesAndNewlines)
             if !trimmed.isEmpty { activeSession = trimmed }
         }
+        if activeSession.isEmpty {
+            activeSession = mostRecentSessionId()
+        }
 
-        let rows = allRows.filter { $0[0] == activeSession }
+        let rows = activeSession.isEmpty ? [] : fetchRows(sessionId: activeSession)
         if rows.isEmpty {
             // Selected/hooked chat has no turns yet (e.g. brand-new chat).
             view.speedField.stringValue = "no data yet"
