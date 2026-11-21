@@ -155,21 +155,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func refresh() {
-        // Resolve which chat to show: picker lock > hook file > most recent.
-        // Then fetch THAT session's rows directly — a global recent-rows
-        // window can miss an older session entirely and show a false
-        // "no data yet".
-        let hookFile = NSHomeDirectory() + "/.zcode/token-meter/current-session"
-        var activeSession = ""
-        if let locked = lockedSession {
-            activeSession = locked
-        } else if let sid = try? String(contentsOfFile: hookFile, encoding: .utf8) {
-            let trimmed = sid.trimmingCharacters(in: .whitespacesAndNewlines)
-            if !trimmed.isEmpty { activeSession = trimmed }
-        }
-        if activeSession.isEmpty {
-            activeSession = mostRecentSessionId()
-        }
+        // Resolve which chat to show: picker lock > most-recent activity.
+        // "Most recent" is exactly the running/latest session (newest
+        // model_usage row), so Auto always grabs whatever is actually
+        // working right now. (The prompt-hook file was removed from this
+        // chain: "last typed chat" and "currently running chat" differ
+        // whenever a resumed/other session is working, and running wins.)
+        let activeSession = lockedSession ?? mostRecentSessionId()
 
         let rows = activeSession.isEmpty ? [] : fetchRows(sessionId: activeSession)
         if rows.isEmpty {

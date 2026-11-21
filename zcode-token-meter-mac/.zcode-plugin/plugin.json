@@ -1,6 +1,6 @@
 {
   "name": "zcode-token-meter-mac",
-  "version": "0.1.9",
+  "version": "0.2.0",
   "description": "Floating always-on-top macOS widget showing live ZCode token output speed (tok/s or tok/min) and prompt-cache hit rate, read from the local ZCode sqlite database.",
   "author": {
     "name": "Hasan Sarker"
